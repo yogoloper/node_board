@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>게시판</title>
+  <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+
+  <script type="text/javascript">
+    let boardNo;
+
+    $(document).ready(function () {
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      boardNo = urlParams.get("boardNo");
+
+      if (boardNo) {
+        getBoard(boardNo);
+      }
+
+    });
+    
+    function getBoard(boardNo) {
+
+      $("#commentUpdBtn").hide();
+      $("#commentRegBtn").show();
+
+      $("#content").val('')
+      $("#userName").val('')
+
+      $("#board").html('');
+      $("#comment").html('');
+
+      $.ajax({
+        url: '/api/boards/' + boardNo,
+        type: 'get',
+        data: {},
+        success: function (data) {
+
+          let templ_html = '';
+          let comment_templ_html = '';
+
+          templ_html += `
+        <table border="1px solid black" width="100%">
+          <thead>
+            <tr>
+              <th class="tg-0lax">Title</th>
+              <td class="tg-0lax" width="20%" align="center">${data.board.title}</td>
+              <th class="tg-0lax">Author</th>
+              <td class="tg-0lax" align="center">${data.board.userName}</td>
+              <th class="tg-0lax">regDate</th>
+              <td class="tg-0lax" align="center">${moment(data.board.regDate).format('YYYY-MM-DD HH:mm:ss')}</td>
+
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="tg-0lax" colspan="6" align="left" height="100px">${data.board.content}</td>
+            </tr>
+          </tbody>
+          </table>`;
+
+          $("#board").append(templ_html);
+
+          if (data.comments.length) {
+            comment_templ_html += `<table border="1px solid black" width="100%">
+            <tbody align="center"> `;
+            for (let i = 0; i < data.comments.length; i++) {
+              comment_templ_html += `
+              <tr>
+                <td class="tg-0lax" rowspan="2" width="60%">${data.comments[i].content}</td>
+                <td class="tg-0pky" width="10%">${data.comments[i].userName}</td>
+                <td class="tg-0pky">${moment(data.comments[i].regDate).format('YYYY-MM-DD HH:mm:ss')}</td>
+              </tr>
+              <tr>
+                <td class="tg-0pky" colspan="2">
+                  <Button onClick="updateReadyComment(${data.comments[i].commentNo})">수정</Button>
+                  <Button onClick="deleteComment(${data.comments[i].commentNo})">삭제</Button>
+                </td>
+              </tr>
+              `
+            }
+            comment_templ_html += `</tbody></table>`
+
+            $("#comment").append(comment_templ_html);
+          }
+        }
+      });
+    }
+
+    function updateBoard() {
+      window.location.replace("/boardUpdate.html?boardNo=" + boardNo);
+    }
+
+    function deleteBoard() {
+      $.ajax({
+        url: '/api/boards/' + boardNo,
+        type: 'delete',
+        data: {},
+        success: function (data) {
+          window.location.replace("/");
+        }
+      });
+    }
+
+    function registComment() {
+      content = $("#content").val()
+      userName = $("#userName").val()
+
+      $.ajax({
+        url: '/api/boards/' + boardNo + '/comments',
+        contentType: 'application/json',
+        type: 'POST',
+        data: JSON.stringify({ content, userName }),
+        success: function (data) {
+          getBoard(boardNo)
+        },
+        error: function (err) {
+          alert(err.responseJSON.errorMessage);
+        }
+      });
+    }
+
+    function updateReadyComment(commentNo) {
+      $("#commentRegBtn").hide();
+      $("#commentUpdBtn").show();
+
+      $.ajax({
+        url: '/api/boards/' + boardNo + '/comments/' + commentNo,
+        contentType: 'application/json',
+        type: 'GET',
+        data: {},
+        success: function (data) {
+
+          $("#content").val(data.content)
+          $("#userName").val(data.userName)
+          $("#regDate").val(data.regDate)
+          $("#isDeleted").val(data.isDeleted)
+          $("#commentNo").val(data.commentNo)
+        },
+        error: function (err) {
+        }
+      });
+    }
+
+    function updateComment() {
+
+      content = $("#content").val()
+      userName = $("#userName").val()
+      regDate = $("#regDate").val()
+      isDeleted = $("#isDeleted").val()
+      commentNo = $("#commentNo").val()
+
+
+      $.ajax({
+        url: '/api/boards/' + boardNo + '/comments/' + commentNo,
+        contentType: 'application/json',
+        type: 'PUT',
+        data: JSON.stringify({ content, userName, regDate, isDeleted }),
+        success: function (data) {
+          getBoard(boardNo)
+        },
+        error: function (err) {
+          alert(err.responseJSON.errorMessage);
+        }
+      });
+    }
+
+    function deleteComment(commentNo) {
+      $.ajax({
+        url: '/api/boards/' + boardNo + '/comments/' + commentNo,
+        type: 'delete',
+        data: {},
+        success: function (data) {
+          getBoard(boardNo)
+        }
+      });
+    }
+  </script>
+</head>
+
+<body>
+  <h2><a href="/">Main</a></h2>
+  <h2>게시글 상세</h2>
+  <div id="board"></div>
+  <button onClick="updateBoard()">게시글 수정</button>
+  <button onClick="deleteBoard()">게시글 삭제</button>
+  <h2>댓글 작성</h2>
+  <div id="comment"></div>
+  <div>
+    <label for="lname">comment:</label>
+    <input type="text" id="content" name="fname">
+    <label for="fname">Author:</label>
+    <input type="text" id="userName" name="fname">
+    <input type="hidden" id="regDate">
+    <input type="hidden" id="commentNo">
+    <input type="hidden" id="isDeleted">
+    <button onclick="registComment()" id="commentRegBtn">등록</button>
+    <button onclick="updateComment()" id="commentUpdBtn">수정</button>
+  </div>
+</body>
+
+</html>

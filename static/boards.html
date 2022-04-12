@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>게시판</title>
+  <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+  
+  <script type="text/javascript">
+    $.ajax({
+      url: '/api/boards',
+      type: 'get',
+      data: {},
+      success: function (data) {
+        let templ_html = '';
+      if(data.length) {
+
+        templ_html += `<table border="1px solid black" width="100%">
+        <thead>
+          <th width="50%">제목</th>
+          <th>작성자</th>
+          <th>등록일</th>
+        </thead> 
+        <tbody align="center"> `;
+          for (let i = 0; i < data.length; i++) {
+            templ_html += ` <tr>
+              <td>
+                <a href="/boardDetails.html?boardNo=${data[i].boardNo}">${data[i].title}</a>
+              </td>
+              <td>
+                ${data[i].userName}
+              </td>
+              <td>
+                ${moment(data[i].regDate).format('YYYY-MM-DD HH:mm:ss')}
+              </td>
+            </tr>`;
+          }
+          templ_html += `</tbody></table>`
+        } else {
+          templ_html += `게시글이 존재하지 않습니다.`
+        }
+
+        $("#boardList").append(templ_html);
+      }
+    });
+  </script>
+
+</head>
+
+<body>
+  <h2><a href="/">Main</a></h2>
+  <h2>게시글 목록</h2>
+  <div id="boardList"></div>
+  <button onClick="location.href='/boardPost.html'">게시글 등록</button>
+</body>
+
+</html>

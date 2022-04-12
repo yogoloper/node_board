@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>게시판</title>
+  <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+    });
+
+    function regist() {
+      let userName = $("#userName").val()
+      let title = $("#title").val()
+      let content = $("#content").val()
+
+      $.ajax({
+        url: '/api/boards',
+        contentType: 'application/json',
+        type: 'POST',
+        data: JSON.stringify({ title: title, userName: userName, content: content }),
+        success: function (data) {
+          window.location.replace("/boardDetails.html?boardNo=" + data.boardNo);
+        },
+        error: function (err) {
+        }
+      });
+    }
+
+    function cancel() {
+      window.location.replace("/");
+    }
+
+  </script>
+
+</head>
+
+<body>
+  <h2><a href="/">Main</a></h2>
+  <h2>게시글 작성</h2>
+  <div>
+    <label for="fname">Title:</label><br>
+    <input type="text" id="title" name="fname"><br>
+    <label for="fname">Author:</label><br>
+    <input type="text" id="userName" name="fname"><br>
+    <label for="lname">Content:</label><br>
+    <textarea name="message" rows="10" cols="30" id="content"></textarea><br><br>
+    <button onclick="regist()">등록</button>
+    <button onclick="cancel()">취소</button>
+  </div>
+</body>
+
+</html>
