@@ -8,7 +8,7 @@
   <title>게시판</title>
   <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
-  
+
   <script type="text/javascript">
     $.ajax({
       url: '/api/boards',
@@ -16,9 +16,9 @@
       data: {},
       success: function (data) {
         let templ_html = '';
-      if(data.length) {
+        if (data.length) {
 
-        templ_html += `<table border="1px solid black" width="100%">
+          templ_html += `<table border="1px solid black" width="100%">
         <thead>
           <th width="50%">Title</th>
           <th>Author</th>
@@ -43,12 +43,10 @@
         } else {
           templ_html += `게시글이 존재하지 않습니다.`
         }
-
         $("#boardList").append(templ_html);
       }
     });
   </script>
-
 </head>
 
 <body>

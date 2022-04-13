@@ -6,24 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>게시판</title>
-  <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
-  <script type="text/javascript">
-    $.ajax({
-      url: '/api/goods', //request 보낼 서버의 경로
-      type: 'get', // 메소드(get, post, put 등)
-      data: {}, //보낼 데이터
-      success: function (data) {
-        console.log(data)
-        //서버로부터 정상적으로 응답이 왔을 때 실행
-      },
-      error: function (err) {
-        //서버로부터 응답이 정상적으로 처리되지 못햇을 때 실행
-      }
-    });
-  </script>
-
 </head>
-
 <body>
   <script>
     window.location.replace("/boards.html");
